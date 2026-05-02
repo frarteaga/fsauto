@@ -1,0 +1,107 @@
+{
+  "settings": {
+    "log_file": "automation.log",
+    "log_level": "INFO",
+    "dry_run": true,
+    "default_poll_seconds": 2
+  },
+
+  "variables": {
+    "downloads": "C:/Users/frank/Downloads",
+    "documents": "C:/Users/frank/Documents",
+    "archive":   "C:/Users/frank/Archive"
+  },
+
+  "rules": [
+    {
+      "name": "Sort documents to subfolders by extension",
+      "enabled": true,
+      "schedule": "every 2s",
+      "watch": ["${downloads}"],
+      "match": {
+        "extensions": [".pdf", ".doc", ".docx", ".xls", ".xlsx", ".ppt", ".pptx"]
+      },
+      "action": {
+        "type": "move",
+        "destination": "${documents}/Office/{ext_name}",
+        "on_conflict": "rename"
+      }
+    },
+
+    {
+      "name": "Sort images to Pictures",
+      "enabled": true,
+      "schedule": "every 2s",
+      "watch": ["${downloads}"],
+      "match": {
+        "extensions": [".png", ".jpg", ".jpeg", ".gif", ".webp", ".svg"]
+      },
+      "action": {
+        "type": "move",
+        "destination": "C:/Users/frank/Pictures/Sorted/{year}-{month}",
+        "on_conflict": "rename"
+      }
+    },
+
+    {
+      "name": "Rename screenshots with timestamp",
+      "enabled": false,
+      "schedule": "every 5s",
+      "watch": ["${downloads}"],
+      "match": {
+        "extensions": [".png", ".jpg"],
+        "glob": "Screenshot*"
+      },
+      "action": {
+        "type": "rename",
+        "pattern": "screenshot_{date}_{time}_{counter}{ext}"
+      }
+    },
+
+    {
+      "name": "Compress old logs weekly",
+      "enabled": true,
+      "schedule": "weekly sunday 03:00",
+      "watch": ["${documents}/Logs"],
+      "match": {
+        "extensions": [".log", ".txt"],
+        "older_than_days": 7
+      },
+      "action": {
+        "type": "compress",
+        "destination": "${archive}/{year}/{month}",
+        "format": "zip"
+      }
+    },
+
+    {
+      "name": "Delete temp files older than 30 days",
+      "enabled": true,
+      "schedule": "every 1h",
+      "watch": ["${downloads}"],
+      "match": {
+        "extensions": [".tmp", ".bak", ".crdownload"],
+        "older_than_days": 30
+      },
+      "action": {
+        "type": "delete"
+      }
+    },
+
+    {
+      "name": "Archive large videos",
+      "enabled": false,
+      "schedule": "daily 04:00",
+      "watch": ["${downloads}"],
+      "match": {
+        "extensions": [".mp4", ".mkv", ".avi", ".mov"],
+        "larger_than": "500MB"
+      },
+      "action": {
+        "type": "move",
+        "destination": "${archive}/Videos/{year}",
+        "on_conflict": "skip"
+      }
+    }
+  ]
+}

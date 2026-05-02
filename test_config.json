@@ -1,0 +1,84 @@
+{
+  "settings": {
+    "log_file": "test_automation.log",
+    "log_level": "DEBUG",
+    "dry_run": false,
+    "default_poll_seconds": 2
+  },
+
+  "variables": {
+    "input":   "test_folders/input",
+    "output":  "test_folders/output",
+    "archive": "test_folders/archive"
+  },
+
+  "rules": [
+    {
+      "name": "Move PDFs",
+      "enabled": true,
+      "schedule": "every 2s",
+      "watch": ["${input}"],
+      "match": {
+        "extensions": [".pdf"]
+      },
+      "action": {
+        "type": "move",
+        "destination": "${output}/docs",
+        "on_conflict": "rename"
+      }
+    },
+    {
+      "name": "Move images",
+      "enabled": true,
+      "schedule": "every 2s",
+      "watch": ["${input}"],
+      "match": {
+        "extensions": [".png", ".jpg"]
+      },
+      "action": {
+        "type": "move",
+        "destination": "${output}/images/{year}-{month}",
+        "on_conflict": "rename"
+      }
+    },
+    {
+      "name": "Compress logs",
+      "enabled": true,
+      "schedule": "every 2s",
+      "watch": ["${input}"],
+      "match": {
+        "extensions": [".log"]
+      },
+      "action": {
+        "type": "compress",
+        "destination": "${archive}",
+        "format": "zip"
+      }
+    },
+    {
+      "name": "Delete tmp files",
+      "enabled": true,
+      "schedule": "every 2s",
+      "watch": ["${input}"],
+      "match": {
+        "extensions": [".tmp"]
+      },
+      "action": {
+        "type": "delete"
+      }
+    },
+    {
+      "name": "Rename txt files",
+      "enabled": true,
+      "schedule": "every 2s",
+      "watch": ["${input}"],
+      "match": {
+        "extensions": [".txt"]
+      },
+      "action": {
+        "type": "rename",
+        "pattern": "note_{date}_{counter}{ext}"
+      }
+    }
+  ]
+}
